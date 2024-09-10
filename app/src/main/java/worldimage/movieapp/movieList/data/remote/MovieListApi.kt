@@ -1,0 +1,22 @@
+package worldimage.movieapp.movieList.data.remote
+
+import retrofit2.http.GET
+import retrofit2.http.Path
+import retrofit2.http.Query
+import worldimage.movieapp.movieList.data.remote.dto.MovieListDto
+
+interface MovieListApi {
+
+    @GET("movie/{category}")
+    suspend fun getMovieList(
+        @Path("category") category: String,
+        @Query("page") page: Int,
+        @Query("api_key") apiKey: String = API_KEY
+    ): MovieListDto
+
+    companion object {
+        const val BASE_URL = "https://api.themoviedb.org/3/"
+        const val IMAGE_URL = "https://image.tmdb.org/t/p/w500"
+        const val API_KEY = "5d3f432eceacea2671e37b483a2128c9"
+    }
+}

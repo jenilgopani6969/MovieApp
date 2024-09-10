@@ -4,26 +4,38 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import dagger.hilt.android.AndroidEntryPoint
+import worldimage.movieapp.movieList.domain.model.Movie
+import worldimage.movieapp.movieList.presentation.MovieListViewModel
 import worldimage.movieapp.ui.theme.MovieAppTheme
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             MovieAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                val movieListViewModel = hiltViewModel<MovieListViewModel>()
+                val movieListState = movieListViewModel.movieListState.collectAsState().value
+                if (movieListState.isLoading) {
+                    SampleTextView(textLoading = "Loading...")
+                }
+                if (movieListState.movieList.isNotEmpty()) {
+                    SampleTextView(textLoading = "Completed!", movie = movieListState.movieList.first())
                 }
             }
         }
@@ -31,17 +43,29 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
+fun SampleTextView(
+    modifier: Modifier = Modifier,
+    textLoading: String = "",
+    movie: Movie? = null
+) {
+    Column(
         modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    MovieAppTheme {
-        Greeting("Android")
+            .fillMaxSize()
+            .background(Color.White),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = textLoading,
+            fontSize = 12.sp,
+            fontStyle = FontStyle.Italic
+        )
+        if (movie != null){
+            Text(
+                text = movie.title,
+                fontSize = 28.sp,
+                fontStyle = FontStyle.Normal
+            )
+        }
     }
 }
